@@ -3,13 +3,12 @@ import logging
 import chromadb
 from chromadb.config import Settings
 from chromadb.utils import embedding_functions
-from tenacity import retry, wait_random_exponential, stop_after_attempt
 import openai
 import requests
 import os
 import numpy as np
 import pandas as pd
-
+from pprint import pprint
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -23,51 +22,16 @@ client = chromadb.Client(Settings(
     chroma_db_impl="duckdb+parquet",
     persist_directory="/Users/sdan/Developer/chatmaps/cafe_data",
     ))
+
 openai_ef = embedding_functions.OpenAIEmbeddingFunction(
     api_key=OPENAI_API_KEY,
     model_name="text-embedding-ada-002"
 )
-collection = client.get_or_create_collection(name="cafe_collection", embedding_function=openai_ef)
 
-def search_cafes_semantically(query, cafe_data, top_k=10):
-    query_embedding = get_embedding(query)
-    similarities = []
-
-    for cafe in cafe_data:
-
-        cafe_embedding = np.array(collection.get_embedding(cafe["place_id"]))  # Retrieve the list of floats directly
-
-        similarity = np.dot(query_embedding, cafe_embedding) / (np.linalg.norm(query_embedding) * np.linalg.norm(cafe_embedding))
-        similarities.append(similarity)
-
-    top_indices = np.argsort(similarities)[-top_k:][::-1]
-    recommendations = [cafe_data[i] for i in top_indices]
-    return recommendations
-
-def create_cafe_embedding(cafe_details):
-    logging.info(f"Creating embedding for cafe: {cafe_details['name']}")
-    ## dump cafe_details and pretty print it to see what it looks like
-    logging.info(f"Details: {cafe_details}")
-    logging.info(f"ID: {cafe_details['place_id']}")
-
-    attributes = ["name", "formatted_address", "types", "opening_hours", "rating", "price_level", "vicinity"]
-    cafe_details["types"] = ', '.join(cafe_details["types"])  # join the elements in the 'types' list
-    
-    # Convert opening_hours to a string representation
-    if "opening_hours" in cafe_details:
-        cafe_details["opening_hours"] = json.dumps(cafe_details["opening_hours"])
-
-    # Convert reviews to a string representation
-    if "reviews" in cafe_details:
-        cafe_details["reviews"] = json.dumps(cafe_details["reviews"])
-    
-    text = " ".join([str(cafe_details.get(attr, '')) for attr in attributes])
-
-    embedding = openai_ef(text)
-    return list(embedding)  # Convert the embedding into a list of floats
+cafe_collection = client.get_or_create_collection(name="cafe_collection", embedding_function=openai_ef)
 
 
-def search_cafes(api_key, location, keywords=["cafe", "coffee shop", "brewery", "espresso bar"], limit=10):
+def search_cafes(api_key, location, keywords=["cafe", "coffee shop", "brewery", "espresso bar"], limit=30):
     url = "https://maps.googleapis.com/maps/api/place/textsearch/json"
     results = []
 
@@ -80,9 +44,17 @@ def search_cafes(api_key, location, keywords=["cafe", "coffee shop", "brewery", 
         "rankby": "prominence"
     }
     response = requests.get(url, params=params)
-    results.extend(response.json().get("results", [])[:limit])
+    
+    # Log response status and number of results
+    logging.info(f"Response status: {response.status_code}")
+    if response.status_code == 200:
+        results.extend(response.json().get("results", [])[:limit])
+        logging.info(f"Number of results: {len(results)}")
+    else:
+        logging.error(f"Request failed with status code {response.status_code}")
 
     return results
+
 
 def get_cafe_details(api_key, place_id):
     url = "https://maps.googleapis.com/maps/api/place/details/json"
@@ -90,53 +62,110 @@ def get_cafe_details(api_key, place_id):
         "key": api_key,
         "place_id": place_id,
         "fields": "name,formatted_address,rating,user_ratings_total,types,price_level,website,reviews,"
-                  "opening_hours,url,vicinity"
+                  "opening_hours,url,vicinity,place_id"
     }
     response = requests.get(url, params=params)
     results = response.json()
     return results.get("result", {})
 
-@retry(wait=wait_random_exponential(min=1, max=20), stop=stop_after_attempt(6))
-def get_embedding(text: str, model="text-embedding-ada-002") -> list[float]:
-    return openai.Embedding.create(input=text, model=model)["data"][0]["embedding"]
 
+def process_cafe_data(cafe_data):
+    """
+    Make documents by concatenating the cafe name, address, types, number of reviews, reviews, opening hours, reviews, and price level
+    Add metadata for each cafe
+    Add ids for each cafe
+
+    :param cafe_data: list of cafe data
+    :return: documents, metadata, ids
+    """
+    documents = []
+    metadata = []
+    ids = []
+
+    for cafe in cafe_data:
+
+        # Create the document text
+        document_text = f"{cafe['name']} {cafe['formatted_address']} {', '.join(cafe['types'])} " \
+                        f"{cafe.get('user_ratings_total', '')} {cafe.get('opening_hours', '')} " \
+                        f"{cafe.get('reviews', '')} {cafe.get('price_level', '')}"
+        documents.append(document_text)
+
+        opening_hours_str = ', '.join(cafe.get('opening_hours', {}).get('weekday_text', []))
+        reviews_list = cafe.get('reviews', [])
+        reviews_str = '; '.join([f"{review['author_name']} ({review['rating']} stars): {review['text']}" for review in reviews_list])
+
+        # Create the metadata dictionary
+        cafe_metadata = {
+            'name': cafe['name'],
+            'address': cafe['formatted_address'],
+            'types': ', '.join(cafe['types']),
+            'rating': cafe.get('rating') or 'N/A',
+            'user_ratings_total': cafe.get('user_ratings_total') or 'N/A',
+            'price_level': cafe.get('price_level') or 'N/A',
+            'opening_hours': opening_hours_str if opening_hours_str else 'N/A',
+            'reviews': reviews_str if reviews_str else 'N/A',
+        }
+        metadata.append(cafe_metadata)
+
+        # Add the place_id
+        ids.append(cafe['place_id'])
+
+    return documents, metadata, ids
+
+
+def query_cafe_collection(query, num_results=3):
+    metadata_list = []
+    results = cafe_collection.query(query_texts=[query], n_results=num_results)
+    results_metadata = results['metadatas'][0]
+    for result in results_metadata:
+        metadata = {
+            'name': result.get('name'),
+            'address': result.get('address'),
+            'types': result.get('types'),
+            'rating': result.get('rating'),
+            'user_ratings_total': result.get('user_ratings_total'),
+            'price_level': result.get('price_level'),
+            'opening_hours': result.get('opening_hours'),
+            'reviews': result.get('reviews'),
+        }
+        metadata_list.append(metadata)
+
+    return metadata_list
+
+# Main code
 def main():
     logging.info("Searching for cafes in San Francisco...")
     cafes = search_cafes(GOOGLE_MAPS_API_KEY, "San Francisco")
     logging.info(f"Found {len(cafes)} cafes")
-    ## pretty print the cafes
-    for cafe in cafes:
-        logging.info(f"{cafe['name']} at {cafe['formatted_address']}")
 
     cafe_data = []
+
+    ## Get cafe details
 
     for cafe in cafes:
         logging.info(f"Processing cafe: {cafe['name']}")
         details = get_cafe_details(GOOGLE_MAPS_API_KEY, cafe["place_id"])
-
-        embedding = create_cafe_embedding(details)  # Get the list of floats
-        
         cafe_data.append(details)
 
-        logging.info(f"Saving cafe: {cafe['name']} to Chroma collection")
-        logging.info(f"Details: {details}")
-        logging.info(f"ID: {cafe['place_id']}")
-        logging.info(f"Name: {cafe['name']}")
-        logging.info(f"Address: {cafe['formatted_address']}")
-        logging.info(f"Types: {cafe['types']}")
-        logging.info(f"Opening Hours: {cafe.get('opening_hours', 'N/A')}")
-        logging.info(f"Rating: {cafe['rating']}")
-        print("DETAILS ",details)
-        print("PLACE ID",cafe["place_id"])
-        collection.add(embeddings=[embedding], metadatas=[details], ids=[cafe["place_id"]])
+    logging.info(f"Processed {len(cafe_data)} cafes")
 
-    logging.info(f"Saved {len(cafe_data)} cafes data to Chroma collection")
+    ## Process cafe data
 
-    test_query = "cozy cafe with free Wi-Fi"
-    recommendations = search_cafes_semantically(test_query, cafe_data)
-    print("Top recommendations for the query:", test_query)
-    for idx, rec in enumerate(recommendations):
-        print(f"{idx + 1}. {rec['name']} - {rec['formatted_address']}")
+    cafe_documents, cafe_metadata, cafe_ids =  process_cafe_data(cafe_data)
+
+    ## Add cafe data to ChromaDB
+
+    # logging.info("Adding cafe data to ChromaDB...")
+    # logging.info("Cafe documents:")
+    # logging.info(cafe_documents)
+    # logging.info("Cafe metadata:")
+    # logging.info(cafe_metadata)
+    # logging.info("Cafe ids:")
+    # logging.info(cafe_ids)
+
+
+    cafe_collection.add(documents=cafe_documents, metadatas=cafe_metadata, ids=cafe_ids)
 
 if __name__ == "__main__":
     main()
+
