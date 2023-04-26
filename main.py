@@ -23,8 +23,11 @@ openai.api_key = OPENAI_API_KEY
 # Set up ChromaDB client
 client = chromadb.Client(Settings(
     anonymized_telemetry=False,
+    chroma_api_impl="rest",
+    chroma_server_host="***REMOVED***",
+    chroma_server_ssl_enabled=True,
+    chroma_server_http_port=443,
     chroma_db_impl="duckdb+parquet",
-    persist_directory="/Users/sdan/Developer/chatmaps/cafe_data",
 ))
 
 # Set up embedding function
@@ -108,11 +111,10 @@ def process_cafe_data(cafe_data):
         reviews_str = '; '.join([f"({review['rating']} stars): {review['text']}" for review in reviews_list]).replace('\n', ' ').replace('\r', ' ')
 
         # Create the document text
-        document_text = f"Name: {cafe['name']}\nAddress: {cafe['formatted_address']}\nTypes: {', '.join(cafe['types'])}\n" \
-                        f"User Ratings Total: {cafe.get('user_ratings_total', 'N/A')}\nOpening Hours: {opening_hours_str}\n" \
-                        f"Reviews: {reviews_str}\nPrice Level: {cafe.get('price_level', 'N/A')}\n" \
-                        f"Editorial Summary: {cafe.get('editorial_summary', 'N/A')}\nDine In: {cafe.get('dine_in', 'N/A')}\n" \
-                        f"Delivery: {cafe.get('delivery', 'N/A')}\nTakeout: {cafe.get('takeout', 'N/A')}"
+        document_text = f"Address: {cafe['formatted_address']}\nSummary: {cafe.get('editorial_summary', 'N/A')}\nReviews: {reviews_str}\nTypes: {', '.join(cafe['types'])}\n" \
+                        f"Number of ratings: {cafe.get('user_ratings_total', 'N/A')}\nOpening hours: {opening_hours_str}\n" \
+                        f"\nPrice Level: {cafe.get('price_level', 'N/A')}\n" \
+                        f"Dine In: {cafe.get('dine_in', 'N/A')}\nDelivery: {cafe.get('delivery', 'N/A')}\nTakeout: {cafe.get('takeout', 'N/A')}"
 
         documents.append(document_text)
 
@@ -157,6 +159,10 @@ def query_cafe_collection(query, num_results=3):
             'price_level': result.get('price_level'),
             'opening_hours': result.get('opening_hours'),
             'reviews': result.get('reviews'),
+            'editorial_summary': result.get('editorial_summary'),
+            'dine_in': result.get('dine_in'),
+            'delivery': result.get('delivery'),
+            'takeout': result.get('takeout')
         }
         metadata_list.append(metadata)
 
