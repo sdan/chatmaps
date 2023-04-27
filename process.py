@@ -11,7 +11,6 @@ import pandas as pd
 from pprint import pprint
 import time
 
-
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -38,11 +37,11 @@ openai_ef = embedding_functions.OpenAIEmbeddingFunction(
     model_name="text-embedding-ada-002"
 )
 
-# Create or get the cafe collection
-cafe_collection = client.get_or_create_collection(name="cafe_collection", embedding_function=openai_ef)
+# Create or get the place collection
+place_collection = client.get_or_create_collection(name="place_collection", embedding_function=openai_ef)
 
-def search_cafes(api_key, location, keywords=["cafe", "coffee shop", "brewery", "espresso bar"], limit=100):
-    """Search for cafes in a specific location using the Google Maps API."""
+def search_places(api_key, location, keywords=["restaurant", "eatery", "cafe", "diner", "fast food", "bakery", "deli", "taqueria", "barbecue", "joint", "tea house", "bubble tea", "greek","indian", "asian", "mexican", "pizza", "fine dining", "health food"], limit=100):
+    """Search for places to eat in a specific location using the Google Maps API."""
     url = "https://maps.googleapis.com/maps/api/place/textsearch/json"
     results = []
 
@@ -76,8 +75,8 @@ def search_cafes(api_key, location, keywords=["cafe", "coffee shop", "brewery", 
 
     return results
 
-def get_cafe_details(api_key, place_id):
-    """Get details for a specific cafe using the Google Maps API."""
+def get_place_details(api_key, place_id):
+    """Get details for a specific place using the Google Maps API."""
     url = "https://maps.googleapis.com/maps/api/place/details/json"
     params = {
         "key": api_key,
@@ -89,34 +88,33 @@ def get_cafe_details(api_key, place_id):
     results = response.json()
     return results.get("result", {})
 
-
-def process_cafe_data(cafe_data):
+def process_place_data(place_data):
     """
-    Process cafe data to create documents, metadata, and ids.
+    Process place data to create documents, metadata, and ids.
 
-    :param cafe_data: list of cafe data
+    :param place_data: list of place data
     :return: documents, metadata, ids
     """
     documents = []
     metadata = []
     ids = []
 
-    for cafe in cafe_data:
+    for place in place_data:
         # Extract opening hours
-        opening_hours_str = ', '.join(cafe.get('opening_hours', {}).get('weekday_text', []))
+        opening_hours_str = ', '.join(place.get('opening_hours', {}).get('weekday_text', []))
 
         # Extract reviews
-        reviews_list = cafe.get('reviews', [])
+        reviews_list = place.get('reviews', [])
         reviews_str = '; '.join([f"({review['rating']} stars): {review['text']}" for review in reviews_list]).replace('\n', ' ').replace('\r', ' ')
 
         # Extract editorial summary
-        editorial_summary = cafe.get('editorial_summary', {}).get('overview', 'N/A')
+        editorial_summary = place.get('editorial_summary', {}).get('overview', 'N/A')
 
         # Create the document text
-        document_text = f"Address: {cafe['formatted_address']}\About: {editorial_summary}\nReviews: {reviews_str}\nTypes: {', '.join(cafe['types'])}\n" \
-                        f"Number of ratings: {cafe.get('user_ratings_total', 'N/A')}\nOpening hours: {opening_hours_str}\n" \
-                        f"Price Level: {cafe.get('price_level', 'N/A')}\n" \
-                        f"Dine In: {cafe.get('dine_in', 'N/A')}\nDelivery: {cafe.get('delivery', 'N/A')}\nTakeout: {cafe.get('takeout', 'N/A')}"
+        document_text = f"Address: {place['formatted_address']}\About: {editorial_summary}\nReviews: {reviews_str}\nTypes: {', '.join(place['types'])}\n" \
+                        f"Number of ratings: {place.get('user_ratings_total', 'N/A')}\nOpening hours: {opening_hours_str}\n" \
+                        f"Price Level: {place.get('price_level', 'N/A')}\n" \
+                        f"Dine In: {place.get('dine_in', 'N/A')}\nDelivery: {place.get('delivery', 'N/A')}\nTakeout: {place.get('takeout', 'N/A')}"
 
         documents.append(document_text)
 
@@ -124,77 +122,77 @@ def process_cafe_data(cafe_data):
         logging.info(f"\nDocument text: {document_text}")
 
         # Create the metadata dictionary
-        cafe_metadata = {
-            'name': cafe['name'],
-            'address': cafe['formatted_address'],
-            'types': ', '.join(cafe['types']),
-            'rating': cafe.get('rating') or 'N/A',
-            'user_ratings_total': cafe.get('user_ratings_total') or 'N/A',
-            'price_level': cafe.get('price_level') or 'N/A',
+        place_metadata = {
+            'name': place['name'],
+            'address': place['formatted_address'],
+            'types': ', '.join(place['types']),
+            'rating': place.get('rating') or 'N/A',
+            'user_ratings_total': place.get('user_ratings_total') or 'N/A',
+            'price_level': place.get('price_level') or 'N/A',
             'opening_hours': opening_hours_str if opening_hours_str else 'N/A',
             'reviews': reviews_str if reviews_str else 'N/A',
             'editorial_summary': editorial_summary,
-            'dine_in': cafe.get('dine_in', 'N/A'),
-            'delivery': cafe.get('delivery', 'N/A'),
-            'takeout': cafe.get('takeout', 'N/A')
+            'dine_in': place.get('dine_in', 'N/A'),
+            'delivery': place.get('delivery', 'N/A'),
+            'takeout': place.get('takeout', 'N/A')
         }
-        metadata.append(cafe_metadata)
+        metadata.append(place_metadata)
 
         # Log metadata
-        logging.info(f"Metadata: {cafe_metadata}\n")
+        logging.info(f"Metadata: {place_metadata}\n")
 
         # Add the place_id
-        ids.append(cafe['place_id'])
+        ids.append(place['place_id'])
 
     return documents, metadata, ids
 
-def fetch_and_store_cafe_collection(location):
-    """Fetch and store cafe data."""
-    logging.info(f"Searching for cafes in {location}...")
-    cafes = search_cafes(GOOGLE_MAPS_API_KEY, location)
-    logging.info(f"Found {len(cafes)} cafes")
+def fetch_and_store_place_collection(location):
+    """Fetch and store place data."""
+    logging.info(f"Searching for places to eat in {location}...")
+    places = search_places(GOOGLE_MAPS_API_KEY, location)
+    logging.info(f"Found {len(places)} places to eat")
 
-    cafe_data = []
+    place_data = []
 
     # Get existing ids
-    existing_ids = cafe_collection.get()['ids']
+    existing_ids = place_collection.get()['ids']
 
-    ## Get cafe details
-    for cafe in cafes:
-        place_id = cafe["place_id"]
+    ## Get place details
+    for place in places:
+        place_id = place["place_id"]
 
         if place_id not in existing_ids:
-            logging.info(f"Processing cafe: {cafe['name']}")
-            details = get_cafe_details(GOOGLE_MAPS_API_KEY, place_id)
-            cafe_data.append(details)
+            logging.info(f"Processing place: {place['name']}")
+            details = get_place_details(GOOGLE_MAPS_API_KEY, place_id)
+            place_data.append(details)
         else:
-            logging.info(f"Skipping existing cafe: {cafe['name']}")
+            logging.info(f"Skipping existing place: {place['name']}")
 
-    logging.info(f"Processed {len(cafe_data)} cafes")
+    logging.info(f"Processed {len(place_data)} places to eat")
 
-    ## Process cafe data
-    cafe_documents, cafe_metadata, cafe_ids = process_cafe_data(cafe_data)
+    ## Process place data
+    place_documents, place_metadata, place_ids = process_place_data(place_data)
 
-    cafes_to_add = [i for i in range(len(cafe_ids)) if cafe_ids[i] not in existing_ids]
+    places_to_add = [i for i in range(len(place_ids)) if place_ids[i] not in existing_ids]
 
-    filtered_cafe_documents = [cafe_documents[i] for i in cafes_to_add]
-    filtered_cafe_metadata = [cafe_metadata[i] for i in cafes_to_add]
-    filtered_cafe_ids = [cafe_ids[i] for i in cafes_to_add]
+    filtered_place_documents = [place_documents[i] for i in places_to_add]
+    filtered_place_metadata = [place_metadata[i] for i in places_to_add]
+    filtered_place_ids = [place_ids[i] for i in places_to_add]
 
-    logging.info(f"Number of cafes in the collection before adding: {cafe_collection.count()}")
-    logging.info(f"Number of cafes to be added: {len(filtered_cafe_documents)}")
+    logging.info(f"Number of places in the collection before adding: {place_collection.count()}")
+    logging.info(f"Number of places to be added: {len(filtered_place_documents)}")
 
-    if filtered_cafe_documents and filtered_cafe_metadata and filtered_cafe_ids:
-        cafe_collection.add(documents=filtered_cafe_documents, metadatas=filtered_cafe_metadata, ids=filtered_cafe_ids)
+    if filtered_place_documents and filtered_place_metadata and filtered_place_ids:
+        place_collection.add(documents=filtered_place_documents, metadatas=filtered_place_metadata, ids=filtered_place_ids)
     else:
-        logging.warning("No new cafes to add.")
+        logging.warning("No new places to add.")
 
-    logging.info(f"Number of cafes in the collection after adding: {cafe_collection.count()}")
+    logging.info(f"Number of places in the collection after adding: {place_collection.count()}")
 
-def query_cafe_collection(query, num_results=3):
-    """Query the cafe collection in ChromaDB."""
+def query_place_collection(query, num_results=3):
+    """Query the place collection in ChromaDB."""
     metadata_list = []
-    results = cafe_collection.query(query_texts=[query], n_results=num_results)
+    results = place_collection.query(query_texts=[query], n_results=num_results)
     results_metadata = results['metadatas'][0]
     for result in results_metadata:
         metadata = {

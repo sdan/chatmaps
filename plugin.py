@@ -3,7 +3,7 @@ import quart
 import quart_cors
 from quart import request
 import logging
-from process import query_cafe_collection
+from process import query_place_collection
 
 
 # Configure logging
@@ -17,29 +17,30 @@ async def recommendations():
     query = data["query"]
     num_results = data.get("num_results", 3)
 
-    cafe_list = query_cafe_collection(query, num_results)
+    place_list = query_place_collection(query, num_results)
 
     ## Log recommendations
-    logging.info(f"Recommendations: {cafe_list}\n")
+    logging.info(f"Recommendations: {place_list}\n")
 
     formatted_recommendations = []
-    for cafe in cafe_list:
-        formatted_str = (f"{cafe['name']} at {cafe['address']} | "
-                         f"About Summary: {cafe['editorial_summary']} | "
-                         f"Types: {cafe['types']} | "
-                         f"Rating: {cafe['rating']} | "
-                         f"Total User Ratings: {cafe['user_ratings_total']} | "
-                         f"Price Level: {cafe['price_level']} | "
-                         f"Opening Hours: {cafe['opening_hours']} | "
-                         f"Reviews: {cafe['reviews']} | "
-                         f"Dine-in: {cafe['dine_in']} | "
-                         f"Delivery: {cafe['delivery']} | "
-                         f"Takeout: {cafe['takeout']}")
+    for place in place_list:
+        formatted_str = (f"{place['name']} at {place['address']} | "
+                        f"About Summary: {place['editorial_summary']} | "
+                        f"Types: {place['types']} | "
+                        f"Rating: {place['rating']} | "
+                        f"Total User Ratings: {place['user_ratings_total']} | "
+                        f"Price Level: {place['price_level']} | "
+                        f"Opening Hours: {place['opening_hours']} | "
+                        f"Reviews: {place['reviews']} | "
+                        f"Dine-in: {place['dine_in']} | "
+                        f"Delivery: {place['delivery']} | "
+                        f"Takeout: {place['takeout']}")
         formatted_recommendations.append(formatted_str)
 
     print("Formatted Recommendations:", formatted_recommendations)
 
     return quart.Response(response=json.dumps(formatted_recommendations), status=200)
+
 
 
 @app.get("/logo.png")

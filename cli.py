@@ -1,6 +1,6 @@
 # cli.py
 import argparse
-from main import query_cafe_collection, fetch_and_store_cafe_collection
+from process import query_place_collection, fetch_and_store_place_collection
 
 def main():
     parser = argparse.ArgumentParser(description="Search for cafes in the embeddings database.")
@@ -18,9 +18,9 @@ def main():
     args = parser.parse_args()
 
     if args.command == "fetch":
-        fetch_and_store_cafe_collection(args.location)
+        fetch_and_store_place_collection(args.location)
     elif args.command == "query":
-        recommendations = query_cafe_collection(args.query, args.num_results)
+        recommendations = query_place_collection(args.query, args.num_results)
         print(f"Top recommendations for the query: {args.query}")
         for idx, recommendation in enumerate(recommendations, 1):
             print(f"{idx}. {recommendation['name']}")

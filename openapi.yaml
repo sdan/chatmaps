@@ -1,8 +1,8 @@
 openapi: 3.0.1
 info:
-  title: Cafe Recommendations Plugin
-  description: A plugin that finds personalized cafe recommendations. Reccomendations response will show results with names, address(and neighborhood), rating, hours, and what they serve that possibily could be relevant.
-  version: "v1"
+  title: Maps Recommendations Plugin
+  description: A plugin that finds personalized restaurant recommendations. Reccomendations response will show results with names, address(and neighborhood), rating, hours, and what they serve that possibily could be relevant.
+  version: "v3"
 servers:
   - url: PLUGIN_HOSTNAME
 paths:
