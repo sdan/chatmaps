@@ -1,0 +1,8 @@
+quart
+quart_cors
+chromadb
+openai
+requests
+numpy
+pandas
+
