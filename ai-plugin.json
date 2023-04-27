@@ -1,0 +1,18 @@
+{
+    "schema_version": "v2",
+    "name_for_human": "Cafe Recommendations Plugin v2",
+    "name_for_model": "cafe_recommendations",
+    "description_for_human": "Plugin that provides cafe recommendations based on your search.",
+    "description_for_model": "A plugin that finds personalized cafe recommendations. Reccomendations response will show results with names, address(and neighborhood), rating, hours, and what they serve that possibily could be relevant.",
+    "auth": {
+        "type": "none"
+    },
+    "api": {
+        "type": "openapi",
+        "url": "PLUGIN_HOSTNAME/openapi.yaml",
+        "is_user_authenticated": false
+    },
+    "logo_url": "PLUGIN_HOSTNAME/logo.png",
+    "contact_email": "support@example.com",
+    "legal_info_url": "https://example.com/legal"
+}

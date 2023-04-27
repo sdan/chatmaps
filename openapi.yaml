@@ -1,0 +1,39 @@
+openapi: 3.0.1
+info:
+  title: Cafe Recommendations Plugin
+  description: A plugin that finds personalized cafe recommendations. Reccomendations response will show results with names, address(and neighborhood), rating, hours, and what they serve that possibily could be relevant.
+  version: "v1"
+servers:
+  - url: PLUGIN_HOSTNAME
+paths:
+  /recommendations:
+    post:
+      operationId: recommendations
+      summary: Get cafe recommendations based on a user query
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RecommendationsRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RecommendationsResponse"
+
+components:
+  schemas:
+    RecommendationsRequest:
+      type: object
+      required:
+        - query
+      properties:
+        query:
+          type: string
+          description: The search query.
+        num_results:
+          type: integer
+          description:
