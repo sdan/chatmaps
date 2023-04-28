@@ -15,7 +15,7 @@ load_dotenv()
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-app = quart_cors.cors(Quart(__name__), allow_origin=os.environ['ALLOWED_ORIGIN'])
+app = quart_cors.cors(Quart(__name__))
 
 @app.post("/recommendations")
 async def recommendations():
@@ -74,6 +74,10 @@ async def openapi_spec():
         text = f.read()
         text = text.replace("PLUGIN_HOSTNAME", f"http://{host}")
         return Response(text, mimetype="text/yaml")
+    
+@app.get("/health")
+async def health_check():
+    return Response(response="🫡", status=200, mimetype="application/json")
 
 def run_plugin():
     config = Config()
