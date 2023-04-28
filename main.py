@@ -1,13 +1,14 @@
-from flask import Flask, jsonify
+from app import app
+from hypercorn.config import Config
+from hypercorn.asyncio import serve
+import asyncio
 import os
 
-app = Flask(__name__)
+def run_server():
+    config = Config()
+    port = os.getenv("PORT", default=8000)
+    config.bind = [f"0.0.0.0:{port}"]
+    asyncio.run(serve(app, config))
 
-
-@app.route('/')
-def index():
-    return jsonify({"Choo Choo": "Welcome to your Flask app 🚅"})
-
-
-if __name__ == '__main__':
-    app.run(debug=True, port=os.getenv("PORT", default=8000))
+if __name__ == "__main__":
+    run_server()
