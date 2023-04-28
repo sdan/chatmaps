@@ -1,12 +1,14 @@
 import json
 import os
 import logging
+import asyncio
 from dotenv import load_dotenv
 from quart import Quart, request, send_file, Response
 import quart_cors
 from process import query_place_collection
 from hypercorn.config import Config
 from hypercorn.asyncio import serve
+
 
 load_dotenv()
 
@@ -77,7 +79,6 @@ def run_plugin():
     config = Config()
     config.bind = ["0.0.0.0:8000"]
     config.access_log_format = '%(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s" %(D)s'
-    app.run(debug=True, host="0.0.0.0", port=8000)
     asyncio.run(serve(app, config))
 
 if __name__ == "main":
