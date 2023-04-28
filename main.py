@@ -6,6 +6,7 @@ import os
 
 def run_server():
     config = Config()
+    config.workers = 4
     port = os.getenv("PORT", default=8000)
     config.bind = [f"0.0.0.0:{port}"]
     asyncio.run(serve(app, config))
