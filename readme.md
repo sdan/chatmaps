@@ -20,6 +20,7 @@ Interact with the ChatMaps by installing this URL into the ChatGPT plugin interf
 this chatgpt plugin currently provides personalized restaurant recommendations based on your search queries. It fetches embeddings from the embeddings database to find relevant information such as names, addresses, ratings, opening hours, reviews, if they do takeout/delivery/etc, and the types of cuisine served at each restaurant.
 
 ## Features
+- Gets better over time -- more embeddings that are slowly added will increasingly improve search results
 - Fetch and display personalized restaurant recommendations
 - Show detailed information about each recommended restaurant
 - No installation required. Just add **chatmaps.sdan.io** as an unverified plugin on ChatGPT's UI
