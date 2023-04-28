@@ -1,9 +1,9 @@
 {
     "schema_version": "v1",
     "name_for_human": "Restaurant Recommendations",
-    "name_for_model": "place_recommendations",
+    "name_for_model": "restaurant_recommendations",
     "description_for_human": "Plugin that provides restaurant recommendations based on your search.",
-    "description_for_model": "A plugin that finds personalized restaurant recommendations. Reccomendations response will show results with names, address, rating, hours, and what they serve that could be relevant.",
+    "description_for_model": "A plugin that finds personalized restaurant recommendations. Reccomendations API response will show results with names, address, rating, hours, and what they serve that could be relevant.",
     "auth": {
         "type": "none"
     },

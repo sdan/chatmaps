@@ -10,9 +10,14 @@ import numpy as np
 import pandas as pd
 from pprint import pprint
 import time
+from dotenv import load_dotenv
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+# Load environment variables
+load_dotenv()
 
 # API Keys
 GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY")
