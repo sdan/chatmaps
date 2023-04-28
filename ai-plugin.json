@@ -1,6 +1,6 @@
 {
     "schema_version": "v1",
-    "name_for_human": "Maps Recommendations Plugin",
+    "name_for_human": "Maps Recommendations Plugin v4",
     "name_for_model": "place_recommendations",
     "description_for_human": "Plugin that provides restaurant recommendations based on your search.",
     "description_for_model": "A plugin that finds personalized restaurant recommendations. Reccomendations response will show results with names, address(and neighborhood), rating, hours, and what they serve that possibily could be relevant.",

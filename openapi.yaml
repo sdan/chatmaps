@@ -1,8 +1,8 @@
 openapi: 3.0.1
 info:
-  title: Maps Recommendations Plugin
+  title: Maps Recommendations Plugin v4
   description: A plugin that finds personalized restaurant recommendations. Reccomendations response will show results with names, address(and neighborhood), rating, hours, and what they serve that possibily could be relevant.
-  version: "v3"
+  version: "v4"
 servers:
   - url: PLUGIN_HOSTNAME
 paths:

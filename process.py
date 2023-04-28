@@ -111,7 +111,7 @@ def process_place_data(place_data):
         editorial_summary = place.get('editorial_summary', {}).get('overview', 'N/A')
 
         # Create the document text
-        document_text = f"Address: {place['formatted_address']}\About: {editorial_summary}\nReviews: {reviews_str}\nTypes: {', '.join(place['types'])}\n" \
+        document_text = f"Address: {place['formatted_address']}\About: {editorial_summary}\nTypes: {', '.join(place['types'])}\n" \
                         f"Number of ratings: {place.get('user_ratings_total', 'N/A')}\nOpening hours: {opening_hours_str}\n" \
                         f"Price Level: {place.get('price_level', 'N/A')}\n" \
                         f"Dine In: {place.get('dine_in', 'N/A')}\nDelivery: {place.get('delivery', 'N/A')}\nTakeout: {place.get('takeout', 'N/A')}"
