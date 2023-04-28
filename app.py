@@ -75,6 +75,12 @@ async def openapi_spec():
         text = text.replace("PLUGIN_HOSTNAME", f"http://{host}")
         return Response(text, mimetype="text/yaml")
     
+
+@app.get("/legal")
+async def legal():
+    with open("legal.txt") as f:
+        return Response(f.read(), mimetype="text/plain")
+
 @app.get("/health")
 async def health_check():
     return Response(response="🫡", status=200, mimetype="text/plain")
