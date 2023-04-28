@@ -1,0 +1,33 @@
+# .gitignore
+
+# Python artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment
+venv/
+*.venv
+.env/
+
+# Hypercorn artifacts
+*.log
+
+# Quart artifacts
+*.sqlite
+
+# Jupyter notebook artifacts
+.ipynb_checkpoints/
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# Editor settings
+.vscode/
+*.sublime-project
+*.sublime-workspace
+*.idea/
+
