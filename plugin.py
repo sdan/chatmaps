@@ -77,13 +77,10 @@ async def openapi_spec():
     
 @app.get("/health")
 async def health_check():
-    return Response(response="🫡", status=200, mimetype="application/json")
+    return Response(response="🫡", status=200, mimetype="text/plain")
 
 def run_plugin():
     config = Config()
     config.bind = ["0.0.0.0:8080"]
     config.access_log_format = '%(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s" %(D)s'
     asyncio.run(serve(app, config))
-
-if __name__ == "main":
-    run_plugin()
