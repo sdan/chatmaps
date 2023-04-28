@@ -26,7 +26,20 @@ this chatgpt plugin currently provides personalized restaurant recommendations b
 
 ## How it works
 - Instead of making costly Google Maps API calls at runtime, I instead embed all locations into a hosted ChromaDB instance running on [Railway](https://railway.app). 
+- Some of the metadata that is tagged along with each location includes:
+  - Name
+  - Address
+  - Editorial Summary
+  - Rating
+  - Type of establishment
+  - Total number of ratings
+  - Price level
+  - Opening hours
+  - Reviews(usually top 3 relevant)
+  - Dine in
+  - Delivery
+  - Takeout
 - User queries are embedded then matched with relevant restaurant locations, which are then sent back to ChatGPT
-- At a high level I use [RAG](https://arxiv.org/abs/2005.11401?ref=mattboegner.com)(Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks)
+- At a high level I use a technique similar to[RAG](https://arxiv.org/abs/2005.11401?ref=mattboegner.com)(Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks)
 
 Enjoy exploring new dining experiences with the ChatMaps Restaurant Recommendations Plugin!
