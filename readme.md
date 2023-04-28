@@ -1,6 +1,8 @@
 # chatmaps
 chatmaps is a chatgpt plugin that allows you to semantically search google maps. currently is geo-locked to San Francisco, California.
 
+<img width="688" alt="Screenshot 2023-04-28 at 12 07 28 PM" src="https://user-images.githubusercontent.com/22898443/235259878-da09b5a1-160d-4031-ba10-301ce5795309.png">
+
 ## Usage
 Interact with the ChatMaps by installing this URL into the ChatGPT plugin interface: **chatmaps.sdan.io**
 - "Kinda like Blue Bottle"
