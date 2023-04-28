@@ -1,24 +1,22 @@
-from quart import Quart, Response
-from hypercorn.config import Config
-from hypercorn.asyncio import serve
-import asyncio
-import logging
+from http.server import BaseHTTPRequestHandler, HTTPServer
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+class HelloWorldRequestHandler(BaseHTTPRequestHandler):
+    def _send_response(self, content):
+        self.send_response(200)
+        self.send_header("Content-Type", "text/plain")
+        self.send_header("Content-Length", len(content))
+        self.end_headers()
+        self.wfile.write(content.encode())
 
-app = Quart(__name__)
+    def do_GET(self):
+        if self.path == "/":
+            self._send_response("Hello, World!")
 
-@app.get("/")
-async def hello_world():
-    return Response(response="Hello, World!", status=200)
-
-def run_plugin():
-    config = Config()
-    config.bind = ["0.0.0.0:8000"]
-    config.debug = False
-    config.access_log_format = '%(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s" %(D)s'
-    asyncio.run(serve(app, config))
+def run_server(port=8000):
+    server_address = ("", port)
+    httpd = HTTPServer(server_address, HelloWorldRequestHandler)
+    print(f"Starting server on port {port}")
+    httpd.serve_forever()
 
 if __name__ == "__main__":
-    run_plugin()
+    run_server()
