@@ -46,7 +46,8 @@ async def recommendations():
                             f"Takeout: {place['takeout']}")
             formatted_recommendations.append(formatted_str)
 
-        logging.info("Formatted Recommendations:", formatted_recommendations)
+        logging.info("Formatted Recommendations: %s", formatted_recommendations)
+
 
         return Response(response=json.dumps(formatted_recommendations), status=200)
 

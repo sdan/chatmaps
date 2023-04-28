@@ -15,8 +15,8 @@ import time
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # API Keys
-GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY")
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+GOOGLE_MAPS_API_KEY = "***REMOVED***"
+OPENAI_API_KEY = "***REMOVED***"
 
 # Set up OpenAI API key
 openai.api_key = OPENAI_API_KEY
