@@ -1,0 +1,39 @@
+openapi: 3.0.1
+info:
+  title: Restaurant Recommendations Plugin
+  description: A plugin that finds personalized restaurant recommendations. Reccomendations response will show results with names, address, rating, hours, and what they serve that could be relevant.
+  version: "v2"
+servers:
+  - url: https://chatmaps.sdan.io
+paths:
+  /recommendations:
+    post:
+      operationId: recommendations
+      summary: Get cafe recommendations based on a user query
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RecommendationsRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RecommendationsResponse"
+
+components:
+  schemas:
+    RecommendationsRequest:
+      type: object
+      required:
+        - query
+      properties:
+        query:
+          type: string
+          description: The search query.
+        num_results:
+          type: integer
+          description:
