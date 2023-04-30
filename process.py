@@ -49,36 +49,46 @@ def search_places(api_key, location, keywords=["restaurant", "eatery", "cafe", "
     """Search for places to eat in a specific location using the Google Maps API."""
     url = "https://maps.googleapis.com/maps/api/place/textsearch/json"
     results = []
+    unique_place_ids = set()
 
-    query = f"{', '.join(keywords)} in {location}"
-    params = {
-        "key": api_key,
-        "query": query,
-        "maxResults": limit,
-        "rankby": "prominence"
-    }
-    
-    while True:
-        response = requests.get(url, params=params)
+    for keyword in keywords:
+        query = f"{keyword} in {location}"
+        params = {
+            "key": api_key,
+            "query": query,
+            "maxResults": limit,
+            "rankby": "prominence"
+        }
         
-        # Log response status and number of results
-        logging.info(f"Response status: {response.status_code}")
-        if response.status_code == 200:
-            data = response.json()
-            results.extend(data.get("results", [])[:limit])
-            logging.info(f"Number of results: {len(results)}")
+        while True:
+            response = requests.get(url, params=params)
             
-            next_page_token = data.get("next_page_token")
-            if next_page_token:
-                params["pagetoken"] = next_page_token
-                time.sleep(2)  # Wait for next_page_token to become valid
+            # Log response status and number of results
+            logging.info(f"Response status: {response.status_code}")
+            if response.status_code == 200:
+                data = response.json()
+                keyword_results = data.get("results", [])[:limit]
+                
+                for place in keyword_results:
+                    place_id = place.get("place_id")
+                    if place_id and place_id not in unique_place_ids:
+                        results.append(place)
+                        unique_place_ids.add(place_id)
+                        logging.info(f"Added place: {place['name']} (Keyword: {keyword})")
+                        
+                next_page_token = data.get("next_page_token")
+                if next_page_token:
+                    params["pagetoken"] = next_page_token
+                    time.sleep(2)  # Wait for next_page_token to become valid
+                else:
+                    break  # No more results available for the current keyword
             else:
-                break  # No more results available
-        else:
-            logging.error(f"Request failed with status code {response.status_code}")
-            break  # Stop attempting to retrieve results
+                logging.error(f"Request failed with status code {response.status_code}")
+                break  # Stop attempting to retrieve results for the current keyword
 
     return results
+
+
 
 def get_place_details(api_key, place_id):
     """Get details for a specific place using the Google Maps API."""
