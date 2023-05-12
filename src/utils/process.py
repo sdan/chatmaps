@@ -33,7 +33,6 @@ client = chromadb.Client(Settings(
     chroma_server_host=os.getenv("CHROMA_SERVER_HOST", "localhost"),
     chroma_server_ssl_enabled=True,
     chroma_server_http_port=443,
-    chroma_db_impl="duckdb+parquet",
 ))
 
 # Set up embedding function
@@ -45,7 +44,7 @@ openai_ef = embedding_functions.OpenAIEmbeddingFunction(
 # Create or get the place collection
 place_collection = client.get_or_create_collection(name="place_collection", embedding_function=openai_ef)
 
-def search_places(api_key, location, keywords=["restaurant", "eatery", "cafe", "diner", "fast food", "bakery", "deli", "taqueria", "barbecue", "joint", "tea house", "bubble tea", "greek","indian", "asian", "mexican", "pizza", "fine dining", "health food"], limit=100):
+def search_places(api_key, location, keywords=["point of interest", "landmark", "neighborhood", "tourist attraction", "bar", "restaurant", "eatery", "cafe", "diner", "fast food", "bakery", "deli", "taqueria", "barbecue", "joint", "tea house", "bubble tea", "greek","indian", "asian", "mexican", "pizza", "fine dining", "health food"], limit=100):
     """Search for places to eat in a specific location using the Google Maps API."""
     url = "https://maps.googleapis.com/maps/api/place/textsearch/json"
     results = []
@@ -143,10 +142,10 @@ def process_place_data(place_data):
             'types': ', '.join(place['types']),
             'rating': place.get('rating') or 'N/A',
             'user_ratings_total': place.get('user_ratings_total') or 'N/A',
-            'price_level': place.get('price_level') or 'N/A',
             'opening_hours': opening_hours_str if opening_hours_str else 'N/A',
             'reviews': reviews_str if reviews_str else 'N/A',
             'editorial_summary': editorial_summary,
+            'price_level': place.get('price_level') or 'N/A',
             'dine_in': place.get('dine_in', 'N/A'),
             'delivery': place.get('delivery', 'N/A'),
             'takeout': place.get('takeout', 'N/A')
