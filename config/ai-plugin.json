@@ -1,9 +1,9 @@
 {
     "schema_version": "v1",
-    "name_for_human": "ChatMaps Maps Plugin",
+    "name_for_human": "ChatMaps",
     "name_for_model": "chatmaps",
-    "description_for_human": "Plugin that lets you search maps semantically.",
-    "description_for_model": "A plugin that smenatically searches maps. Reccomendations response will show results with names, address, rating, hours, and what they serve that could be relevant. You will help the user explore new places and places to go to given their search restraints.",
+    "description_for_human": "Search maps semantically.",
+    "description_for_model": "Sematically search maps. Reccomendations response will show results with names, address, rating, hours, and what they serve that could be relevant. You will help the user explore new places and places to go to given their search restraints.",
     "auth": {
         "type": "none"
     },

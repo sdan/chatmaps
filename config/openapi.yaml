@@ -1,7 +1,7 @@
 openapi: 3.0.1
 info:
-  title: ChatMaps Maps Plugin
-  description: A plugin that smenatically searches maps. Reccomendations response will show results with names, address, rating, hours, and what they serve that could be relevant. You will help the user explore new places and places to go to given their search restraints.
+  title: ChatMaps
+  description: Semantically search maps. Reccomendations response will show results with names, address, rating, hours, and what they serve that could be relevant. You will help the user explore new places and places to go to given their search restraints.
   version: "v2"
 servers:
   - url: https://chatmaps.sdan.io
