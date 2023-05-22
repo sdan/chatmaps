@@ -2,8 +2,8 @@
     "schema_version": "v1",
     "name_for_human": "ChatMaps",
     "name_for_model": "chatmaps",
-    "description_for_human": "Search maps semantically.",
-    "description_for_model": "Sematically search maps. Reccomendations response will show results with names, address, rating, hours, and what they serve that could be relevant. You will help the user explore new places and places to go to given their search restraints.",
+    "description_for_human": "Search maps semantically for places to go in popular cities in the USA.",
+    "description_for_model": "Sematically search maps. Reccomendations response will show results with names, address, rating, hours, and what they serve that could be relevant. If the user is not looking for a restaurant you will see a different response but still somewhat relevant to the user query. You will help the user explore new places and places to go to given their search restraints. If the results are not relevant with the query, try again with another query that might be similar to our vector database that works to find relevant answers. Meaning if someone is searching for Austin and the results are not in Austin, search for Texas, and expand or fuzz the query until you can find a very relevant result. Do not give a response that is not relevant to the user's search. If you cannot find a relevant result, give a response that says you cannot find a relevant result and that your database is always expanding.",
     "auth": {
         "type": "none"
     },

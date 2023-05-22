@@ -44,7 +44,7 @@ openai_ef = embedding_functions.OpenAIEmbeddingFunction(
 # Create or get the place collection
 place_collection = client.get_or_create_collection(name="place_collection", embedding_function=openai_ef)
 
-def search_places(api_key, location, keywords=["point of interest", "landmark", "neighborhood", "tourist attraction", "bar", "restaurant", "eatery", "cafe", "diner", "fast food", "bakery", "deli", "taqueria", "barbecue", "joint", "tea house", "bubble tea", "greek","indian", "asian", "mexican", "pizza", "fine dining", "health food"], limit=100):
+def search_places(api_key, location, keywords, limit=100):
     """Search for places to eat in a specific location using the Google Maps API."""
     url = "https://maps.googleapis.com/maps/api/place/textsearch/json"
     results = []
@@ -162,46 +162,154 @@ def process_place_data(place_data):
 
 def fetch_and_store_place_collection(location):
     """Fetch and store place data."""
-    logging.info(f"Searching for places to eat in {location}...")
-    places = search_places(GOOGLE_MAPS_API_KEY, location)
-    logging.info(f"Found {len(places)} places to eat")
+    # go through top 100 cities in the US
+    cities = [
+    "New York",
+    "Los Angeles",
+    "Chicago",
+    "Houston",
+    "Phoenix",
+    "Philadelphia",
+    "San Antonio",
+    "San Diego",
+    "Dallas",
+    "San Jose",
+    "Austin",
+    "Jacksonville",
+    "Fort Worth",
+    "Columbus",
+    "San Francisco",
+    "Charlotte",
+    "Indianapolis",
+    "Seattle",
+    "Denver",
+    "Washington",
+    "Boston",
+    "El Paso",
+    "Detroit",
+    "Nashville",
+    "Portland",
+    "Memphis",
+    "Oklahoma City",
+    "Las Vegas",
+    "Louisville",
+    "Baltimore",
+    "Milwaukee",
+    "Albuquerque",
+    "Tucson",
+    "Fresno",
+    "Sacramento",
+    "Mesa",
+    "Kansas City",
+    "Atlanta",
+    "Long Beach",
+    "Colorado Springs",
+    "Raleigh",
+    "Miami",
+    "Virginia Beach",
+    "Omaha",
+    "Oakland",
+    "Minneapolis",
+    "Tulsa",
+    "Arlington",
+    "New Orleans",
+    "Wichita",
+    "Cleveland",
+    "Tampa",
+    "Bakersfield",
+    "Aurora",
+    "Honolulu",
+    "Anaheim",
+    "Santa Ana",
+    "Corpus Christi",
+    "Riverside",
+    "Lexington",
+    "St. Louis",
+    "Stockton",
+    "Pittsburgh",
+    "Saint Paul",
+    "Cincinnati",
+    "Anchorage",
+    "Henderson",
+    "Greensboro",
+    "Plano",
+    "Newark",
+    "Lincoln",
+    "Orlando",
+    "Chula Vista",
+    "Jersey City",
+    "Chandler",
+    "Fort Wayne",
+    "Buffalo",
+    "Durham",
+    "St. Petersburg",
+    "Irvine",
+    "Laredo",
+    "Lubbock",
+    "Madison",
+    "Gilbert",
+    "Norfolk",
+    "Louisville",
+    "Reno",
+    "Winston–Salem",
+    "Glendale",
+    "Hialeah",
+    "Garland",
+    "Scottsdale",
+    "Irving",
+    "Chesapeake",
+    "North Las Vegas",
+    "Fremont",
+    "Baton Rouge",
+    "Richmond",
+    "Boise",
+    "San Bernardino",
+    "Spokane"
+]
+    for location in cities:
+        logging.info(f"Searching for places to eat in {location}...")
 
-    place_data = []
+        # Go through top 100 cities in the US
 
-    # Get existing ids
-    existing_ids = place_collection.get()['ids']
+        places = search_places(GOOGLE_MAPS_API_KEY, "point of interest", location)
+        logging.info(f"Found {len(places)} places to eat")
 
-    ## Get place details
-    for place in places:
-        place_id = place["place_id"]
+        place_data = []
 
-        if place_id not in existing_ids:
-            logging.info(f"Processing place: {place['name']}")
-            details = get_place_details(GOOGLE_MAPS_API_KEY, place_id)
-            place_data.append(details)
+        # Get existing ids
+        existing_ids = place_collection.get()['ids']
+
+        ## Get place details
+        for place in places:
+            place_id = place["place_id"]
+
+            if place_id not in existing_ids:
+                logging.info(f"Processing place: {place['name']}")
+                details = get_place_details(GOOGLE_MAPS_API_KEY, place_id)
+                place_data.append(details)
+            else:
+                logging.info(f"Skipping existing place: {place['name']}")
+
+        logging.info(f"Processed {len(place_data)} places to eat")
+
+        ## Process place data
+        place_documents, place_metadata, place_ids = process_place_data(place_data)
+
+        places_to_add = [i for i in range(len(place_ids)) if place_ids[i] not in existing_ids]
+
+        filtered_place_documents = [place_documents[i] for i in places_to_add]
+        filtered_place_metadata = [place_metadata[i] for i in places_to_add]
+        filtered_place_ids = [place_ids[i] for i in places_to_add]
+
+        logging.info(f"Number of places in the collection before adding: {place_collection.count()}")
+        logging.info(f"Number of places to be added: {len(filtered_place_documents)}")
+
+        if filtered_place_documents and filtered_place_metadata and filtered_place_ids:
+            place_collection.add(documents=filtered_place_documents, metadatas=filtered_place_metadata, ids=filtered_place_ids)
         else:
-            logging.info(f"Skipping existing place: {place['name']}")
+            logging.warning("No new places to add.")
 
-    logging.info(f"Processed {len(place_data)} places to eat")
-
-    ## Process place data
-    place_documents, place_metadata, place_ids = process_place_data(place_data)
-
-    places_to_add = [i for i in range(len(place_ids)) if place_ids[i] not in existing_ids]
-
-    filtered_place_documents = [place_documents[i] for i in places_to_add]
-    filtered_place_metadata = [place_metadata[i] for i in places_to_add]
-    filtered_place_ids = [place_ids[i] for i in places_to_add]
-
-    logging.info(f"Number of places in the collection before adding: {place_collection.count()}")
-    logging.info(f"Number of places to be added: {len(filtered_place_documents)}")
-
-    if filtered_place_documents and filtered_place_metadata and filtered_place_ids:
-        place_collection.add(documents=filtered_place_documents, metadatas=filtered_place_metadata, ids=filtered_place_ids)
-    else:
-        logging.warning("No new places to add.")
-
-    logging.info(f"Number of places in the collection after adding: {place_collection.count()}")
+        logging.info(f"Number of places in the collection after adding: {place_collection.count()}")
 
 def query_place_collection(query, num_results=3):
     """Query the place collection in ChromaDB."""
