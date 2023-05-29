@@ -23,7 +23,7 @@
 </head>
 <body>
     <h1>ChatMaps</h1>
-    <p>ChatMaps is a ChatGPT plugin that allows you to semantically search Google Maps. It is currently geo-locked to San Francisco, California.</p>
+    <p>ChatMaps is a ChatGPT plugin that allows you to semantically search Google Maps. It is currently geo-locked to San Francisco, California and New York, New York and many popular tourist destinations in the USA.</p>
     <img src="https://user-images.githubusercontent.com/22898443/235259878-da09b5a1-160d-4031-ba10-301ce5795309.png" width="688" alt="Screenshot 2023-04-28 at 12 07 28 PM">
     <h2>Usage</h2>
     <p>Interact with the ChatMaps by installing this URL into the ChatGPT plugin interface: <strong>chatmaps.sdan.io</strong></p>
@@ -43,7 +43,7 @@
         <li>No installation required. Just add <strong>chatmaps.sdan.io</strong> as an unverified plugin on ChatGPT's UI</li>
     </ul>
     <h2>How it works</h2>
-    <p>Instead of making costly Google Maps API calls at runtime, I instead embed all locations into a hosted ChromaDB instance running on <a href="https://railway.app">Railway</a>.</p>
+    <p>Instead of making costly Google Maps API calls at runtime, I instead embed all locations into a hosted ChromaDB instance running on <a href="https://railway.app?referralCode=BOuHH1">Railway</a>.</p>
     <p>Some of the metadata that is tagged along with each location includes:</p>
     <ul>
         <li>Name</li>
@@ -52,7 +52,7 @@
         <!-- ... other metadata fields ... -->
     </ul>
     <p>User queries are embedded then matched with relevant restaurant locations, which are then sent back to ChatGPT.</p>
-    <p>At a high level I use a technique similar to<a href="https://arxiv.org/abs/2005.11401?ref=mattboegner.com">RAG</a>(Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks).</p>
+    <p>At a high level I use a technique similar to <a href="https://arxiv.org/abs/2005.11401?ref=mattboegner.com">RAG</a> (Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks).</p>
     <p>Enjoy exploring new dining experiences with the ChatMaps Restaurant Recommendations Plugin!</p>
 </body>
 </html>
