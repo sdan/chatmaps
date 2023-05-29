@@ -90,5 +90,6 @@ async def health_check():
     return Response(response="🫡", status=200, mimetype="text/plain")
 
 @app.get("/")
-async def homepage():
-    return "chatmaps plugin server is running!"
+async def index():
+    filename = os.path.join(current_dir, '..', 'index.html')
+    return await send_file(filename)

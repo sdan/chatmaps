@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatMaps</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/4.0.0/github-markdown.min.css" integrity="sha512-KyZXEehjT4trUn4sOp0k2T0TxEo3MVlS/RwS4S1iMhG0tK1MZA0HNrsDZMQt8lePDCB0CMIIx1txDShbHmLfmQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        body {
+            box-sizing: border-box;
+            min-width: 200px;
+            max-width: 980px;
+            margin: 0 auto;
+            padding: 45px;
+        }
+        .markdown-body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            font-size: 16px;
+            line-height: 1.6;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+    <h1>ChatMaps</h1>
+    <p>ChatMaps is a ChatGPT plugin that allows you to semantically search Google Maps. It is currently geo-locked to San Francisco, California.</p>
+    <img src="https://user-images.githubusercontent.com/22898443/235259878-da09b5a1-160d-4031-ba10-301ce5795309.png" width="688" alt="Screenshot 2023-04-28 at 12 07 28 PM">
+    <h2>Usage</h2>
+    <p>Interact with the ChatMaps by installing this URL into the ChatGPT plugin interface: <strong>chatmaps.sdan.io</strong></p>
+    <ul>
+        <li>"Kinda like Blue Bottle"</li>
+        <li>"Sweetgreen but not sweetgreen"</li>
+        <li>"Find a romantic Italian restaurant in North Beach"</li>
+        <!-- ... other examples ... -->
+    </ul>
+    <h2>Overview</h2>
+    <p>This ChatGPT plugin currently provides personalized restaurant recommendations based on your search queries. It fetches embeddings from the embeddings database to find relevant information such as names, addresses, ratings, opening hours, reviews, if they do takeout/delivery/etc, and the types of cuisine served at each restaurant.</p>
+    <h2>Features</h2>
+    <ul>
+        <li>Gets better over time -- more embeddings that are slowly added will increasingly improve search results</li>
+        <li>Fetch and display personalized restaurant recommendations</li>
+        <li>Show detailed information about each recommended restaurant</li>
+        <li>No installation required. Just add <strong>chatmaps.sdan.io</strong> as an unverified plugin on ChatGPT's UI</li>
+    </ul>
+    <h2>How it works</h2>
+    <p>Instead of making costly Google Maps API calls at runtime, I instead embed all locations into a hosted ChromaDB instance running on <a href="https://railway.app">Railway</a>.</p>
+    <p>Some of the metadata that is tagged along with each location includes:</p>
+    <ul>
+        <li>Name</li>
+        <li>Address</li>
+        <li>Editorial Summary</li>
+        <!-- ... other metadata fields ... -->
+    </ul>
+    <p>User queries are embedded then matched with relevant restaurant locations, which are then sent back to ChatGPT.</p>
+    <p>At a high level I use a technique similar to<a href="https://arxiv.org/abs/2005.11401?ref=mattboegner.com">RAG</a>(Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks).</p>
+    <p>Enjoy exploring new dining experiences with the ChatMaps Restaurant Recommendations Plugin!</p>
+</body>
+</html>
