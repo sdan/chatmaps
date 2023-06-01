@@ -8,6 +8,7 @@ import quart_cors
 from utils.process import query_place_collection
 from hypercorn.config import Config
 from hypercorn.asyncio import serve
+from fleet_sdk import Tracker
 
 
 load_dotenv()
@@ -19,8 +20,10 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 app = quart_cors.cors(Quart(__name__))
+tracker = Tracker("fleet-a56990fc-871d-4ab8-ae1f-502054d376c0", app=app)
 
 @app.post("/recommendations")
+@tracker.log_event
 async def recommendations():
     try:
         data = await request.get_json(force=True)
