@@ -20,10 +20,11 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 app = quart_cors.cors(Quart(__name__))
+#Enable Fleet Analytics
 tracker = Tracker("fleet-a56990fc-871d-4ab8-ae1f-502054d376c0", app=app)
 
 @app.post("/recommendations")
-@tracker.log_event
+@tracker.log_event #Instrument this endpoint
 async def recommendations():
     try:
         data = await request.get_json(force=True)
