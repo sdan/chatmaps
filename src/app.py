@@ -8,7 +8,7 @@ import quart_cors
 from utils.process import query_place_collection
 from hypercorn.config import Config
 from hypercorn.asyncio import serve
-from fleet_sdk import Tracker
+from fleet_sdk.Tracker import Tracker
 
 
 load_dotenv()
