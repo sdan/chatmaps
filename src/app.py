@@ -8,6 +8,7 @@ import quart_cors
 from utils.process import query_place_collection
 from hypercorn.config import Config
 from hypercorn.asyncio import serve
+from fleet_sdk.Tracker import Tracker
 
 
 load_dotenv()
@@ -19,8 +20,11 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 app = quart_cors.cors(Quart(__name__))
+#Enable Fleet Analytics
+tracker = Tracker("Replace with actual fleet ID from usefleet.ai", app=app) # Replace with actual fleet ID
 
 @app.post("/recommendations")
+@tracker.log_event #Instrument this endpoint
 async def recommendations():
     try:
         data = await request.get_json(force=True)
